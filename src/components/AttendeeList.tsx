@@ -6,11 +6,11 @@ import {
   MoreHorizontal,
   Search,
 } from "lucide-react";
-import { ChangeEvent, ComponentProps, PropsWithChildren, useState } from "react";
+import { ComponentProps, useState } from "react";
 import Button from "../lib/Button";
 import { attendees } from "../data/attendees";
 import { formatRelative } from "date-fns";
-import { ptBR, enUS } from 'date-fns/locale'
+import { enUS } from 'date-fns/locale'
 
 interface TableCellProps extends ComponentProps<'th'> {
   width?: number
@@ -47,14 +47,14 @@ type Props = {};
 
 function AttendeeList({}: Props) {
 
-  const [search, setSearch] = useState('')
+  // const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
 
   const totalPages = Math.ceil(attendees.length/10)
 
-  function onSearchInputChanged(event: ChangeEvent<HTMLInputElement>){
-    setSearch(event.target.value)
-  } 
+  // function onSearchInputChanged(event: ChangeEvent<HTMLInputElement>){
+  //   setSearch(event.target.value)
+  // } 
 
   function goToFirstPage(){
     setPage(1)
