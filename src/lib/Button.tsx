@@ -1,14 +1,14 @@
-import { PropsWithChildren, ReactNode } from "react";
+import { ComponentProps, PropsWithChildren, ReactNode } from "react";
 
-interface ButtonProps extends PropsWithChildren {
+interface ButtonProps extends ComponentProps<'button'> {
     href?: string;
     label?: string;
     children?: ReactNode;
 }
 
-function Button({href, label, children}: ButtonProps) {
+function Button(props: ButtonProps) {
   return (
-    <a href={href? href : ''} className="p-3 text-sm font-medium">{children}{label}</a>
+    <button {...props} className="p-3 text-sm font-medium disabled:opacity-40 disabled:border-none">{props.children}{props.label}</button>
 
   )
 }

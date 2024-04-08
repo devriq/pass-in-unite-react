@@ -6,15 +6,17 @@ import {
   MoreHorizontal,
   Search,
 } from "lucide-react";
-import { PropsWithChildren } from "react";
+import { ChangeEvent, ComponentProps, PropsWithChildren, useState } from "react";
 import Button from "../lib/Button";
+import { attendees } from "../data/attendees";
+import { formatRelative } from "date-fns";
+import { ptBR, enUS } from 'date-fns/locale'
 
-type TableCellProps = {
-  colSpan?: number;
-  width?: number;
+interface TableCellProps extends ComponentProps<'th'> {
+  width?: number
 };
 
-function Th(props: PropsWithChildren<TableCellProps>) {
+function Th(props: TableCellProps) {
   return (
     <th className="py-3 px-2.5 text-sm text-left font-semibold">
       {props.children}
@@ -22,18 +24,18 @@ function Th(props: PropsWithChildren<TableCellProps>) {
   );
 }
 
-function Td(props: PropsWithChildren<TableCellProps>) {
+function TableCell(props: TableCellProps) {
   return (
     <td
-      colSpan={props.colSpan}
+      {...props}
       className={` w-[${props.width}px] py-3 px-2.5 text-sm text-left`}
     >
-      {props.children}
+      
     </td>
   );
 }
 
-function Tr(props: PropsWithChildren<TableCellProps>) {
+function Tr(props: TableCellProps) {
   return <tr className={`border-b border-white/10`}>{props.children}</tr>;
 }
 
@@ -44,6 +46,32 @@ function Checkbox() {
 type Props = {};
 
 function AttendeeList({}: Props) {
+
+  const [search, setSearch] = useState('')
+  const [page, setPage] = useState(1)
+
+  const totalPages = Math.ceil(attendees.length/10)
+
+  function onSearchInputChanged(event: ChangeEvent<HTMLInputElement>){
+    setSearch(event.target.value)
+  } 
+
+  function goToFirstPage(){
+    setPage(1)
+  }
+  
+  function goToLastPage(){
+    setPage(totalPages)
+  }
+
+  function goToPreviousPage(){
+    setPage(page===1 ? 1 : page-1)
+  }
+
+  function goToNextPage(){
+    setPage(page===totalPages ? totalPages : page+1)
+  }
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex gap-3 items-center">
@@ -70,54 +98,54 @@ function AttendeeList({}: Props) {
             <Th>More</Th>
           </thead>
           <tbody>
-            {Array.from({ length: 10 }).map((_, i) => {
+            {attendees.slice(((page-1)*10), page*10).map((attendee) => {
               return (
-                <Tr key={i}>
-                  <Td width={60}>
+                <Tr key={attendee.id}>
+                  <TableCell width={60}>
                     <Checkbox/>
-                  </Td>
-                  <Td>7e8f-2134-df42</Td>
-                  <Td>
+                  </TableCell>
+                  <TableCell>{attendee.id}</TableCell>
+                  <TableCell>
                     <div className="flex flex-col gap-1">
                       <span className="font-medium">
-                        Arthur Henrique Costa Cordovil
+                        {attendee.name}
                       </span>
                       <span className="font-thin ">
-                        arthur.hcordovil@gmail.com
+                        {(attendee.email).toLowerCase()}
                       </span>
                     </div>
-                  </Td>
-                  <Td>7 days ago</Td>
-                  <Td>3 days ago</Td>
-                  <Td width={60}>
+                  </TableCell>
+                  <TableCell>{formatRelative(attendee.createdAt, new Date(), { locale: enUS})}</TableCell>
+                  <TableCell>{formatRelative(attendee.checkedInAt, new Date(), { locale: enUS})}</TableCell>
+                  <TableCell width={60}>
                     <Button label="">
                       <MoreHorizontal />
                     </Button>
-                  </Td>
+                  </TableCell>
                 </Tr>
               );
             })}
           </tbody>
           <tfoot>
             <Tr>
-              <Td colSpan={3}>Mostrando 10 de 220</Td>
-              <Td colSpan={3}>
+              <TableCell colSpan={3}>Mostrando 10 de {attendees.length}</TableCell>
+              <TableCell colSpan={3}>
                 <div className="flex justify-end items-center px-3">
-                  <span className="px-3">Pagina 1 de 23</span>
-                  <Button>
-                    <ChevronsLeft />
+                  <span className="px-3">Pagina {page} de {totalPages}</span>
+                  <Button onClick={goToFirstPage} disabled={page===1}>
+                    <ChevronsLeft   />
                   </Button>
-                  <Button>
+                  <Button onClick={goToPreviousPage} disabled={page===1} >
                     <ChevronLeft />
                   </Button>
-                  <Button>
-                    <ChevronRight />
+                  <Button  onClick={goToNextPage} disabled={page===totalPages}>
+                    <ChevronRight/>
                   </Button>
-                  <Button>
-                    <ChevronsRight />
+                  <Button onClick={goToLastPage} disabled={page===totalPages}>
+                    <ChevronsRight  />
                   </Button>
                 </div>
-              </Td>
+              </TableCell>
             </Tr>
           </tfoot>
         </table>
